@@ -1,0 +1,118 @@
+Teknologi yang akan dipakai:
+Backend:
+  Golang: Untuk backend bisa memakai Go karena untuk pemakaian memory sedikit dan cepat sehingga cocok untuk usaha rumah makan jika ada permintaan banyak dalam dapat dihandle serta data dapat diproses secara realtime. Untuk Golang framework bebas karena setiap framework untuk perfomance hampir mirip tapi saya tidak akan menggunakan ORM karena bisa mencakup performa dari aplikasi yang didevelop.
+  NodeJS/Bun: Selain Go dapat menggunakan NodeJS atau Bun untuk mendevelop karena ekosistem javascript dan performanya bagus. Untuk NodeJS atau Bun bisa memakai Typescript untuk typesafe jadi kode yang ditulis lebih rapi dan terstruktur.
+FrontEnd:
+  ReactJS: Untuk frontend bisa memakai reactJS karena populer dan komunitasnya luas.
+  VueJS: Selain reactJS dapat menggunakan vueJS karena populer dan mempunyai kelebihan di SPA(Single Page Application).
+  ReactNative/Flutter: Ini opsional jika menggunakan aplikasi mobile untuk budget daripada membeli laptop atau mini PC dapat dimaksimalkan lewat tablet atau HP.
+Database:
+  Postgresql: Untuk database saya memakai postgresql karena dapat scalable serta dia mempunyai sifat NoSQL dimana tanpa relasi dia dpt digunakan juga.
+Deployment:
+  Docker: untuk kontainerisasi dapat menggunakan dockker sehingga developer bisa memakai satu versi yang sama untuk deployment tanpa harus menyesuikan secara manual.
+  Kubernetes: untuk orkestrasi sehingga dikemudian hari dibutuhkan skalabilitas dapat digunakan.
+  AWS/GCP/Azure/Alibaba: untuk cloud service bisa memakai 4 itu bisa disesuaikan dengan budget dari usernya.
+Arsitektur:
+  Monolith: untuk arsitektur saya menyarankan monolith terlebih dahulu karena jika memakai microservices akan sangat memakan resource dan melihat kondisi rumah makannya. Jika dikemudian hari restorannya sudah besar dan membutuhkan skalabilitas maka bisa mempertimbangkan arsitektur microservices untuk aplikasi rumah makannya.
+
+Ide Untuk Meningkatkan Aplikasi:
+  - Bisa menambahkan semacam layar komputer/tablet ke bagian dapur jadi kalau ada misalnya ada order makanan bisa langsung masuk ke dapur dan langsung dieksekusi oleh koki. Disatu sisi mengurangi waktu untuk pramusaji ke dapur untuk melaporkan menu yang akan dieksekusi oleh koki. Ini dengan catatan kalau ada jeda yang jauh antara tempat pramusaji dan tempat masak dan harus ada 1 org stand by di depan layar untuk melaporkan dan mengupdate pesanan ke pramusaji atau user.
+  - Bisa membuat side aplikasi warehouse management stok untuk bahan makanan sehingga dari pihak restaurant dapat tahu stok bahan makanan yang masih tersedia sehingga dapat membuat perencanaan pembelian bahan makanan lebih efektif.
+  - Data menu raltime ini dapat dikoneksikan dengan warehouse management stok jadi jika ada menu yang habis dapat dilihat oleh pelanggan tanpa pramusaji harus bolak balik untuk melaporkan jika menu tersebut habis.
+  - Sytem rating ini dapat dipakai di rating makanan yang menjadi langganan dari pelanggan serta review untuk pramusaji sehingga warung makan dapat memberikan penghargaan pramusaji ramah setiap bulan. Rating juga dapat digunakan untuk membuat list makanan rekomendasi sehingga pelanggan dapat dengan mudah melihat menu yang menjadi primadona rumah makan tersebut.
+  - Form kritik dan saran ini dapat dipakai ke dalam aplikasi sehingga rumah makan tahu kekurangan sehingga pihak rumah makan dapat meningkatkan kualitas makanan dan servis kepada pelanggan.
+
+Rancangan Database:
++------------------+       +------------------+       +------------------+
+|   Customers      |       |     Orders       |       |   OrderDetails   |
++------------------+       +------------------+       +------------------+
+| customer_id (PK) |---+---| order_id (PK)    |---+---| order_detail_id (PK)|
+| name             |   |   | customer_id (FK) |   |   | order_id (FK)    |
+| contact_info     |   |   | order_date       |   |   | menu_item_id (FK)|
++------------------+   |   | total_amount     |   |   | quantity         |
+                       |   +------------------+   |   | price            |
+                       |                           |   +------------------+
+                       |                           |
+                       |                           |
+                       |                           |
+                       |   +------------------+   |
+                       |   |   Receipts       |   |
+                       |   +------------------+   |
+                       +-->| receipt_id (PK)  |   |
+                           | order_id (FK)    |   |
+                           | receipt_date     |   |
+                           | amount           |   |
+                           +------------------+   |
+                                                  |
++------------------+       +------------------+   |
+|   MenuItems      |       |  IncomeReports   |   |
++------------------+       +------------------+   |
+| menu_item_id (PK)|       | report_id (PK)   |   |
+| name             |       | report_type      |   |
+| description      |       | report_date      |   |
+| price            |       | total_income     |   |
+| stock            |       +------------------+   |
++------------------+                               |
+                                                   |
+                                                   |
+                                                   |
+                       +------------------+       |
+                       |   StockReports   |       |
+                       +------------------+       |
+                       | report_id (PK)   |-------+
+                       | report_date      |
+                       | menu_item_id (FK)|
+                       | initial_stock    |
+                       | final_stock      |
+                       +------------------+
+
+`Customers`
+customer_id (Primary Key)
+name
+contact_info
+
+`Orders`
+order_id (Primary Key)
+customer_id (Foreign Key ke Customers)
+order_date
+total_amount
+
+`OrderDetails`
+order_detail_id (Primary Key)
+order_id (Foreign Key ke Orders)
+menu_item_id (Foreign Key ke MenuItems)
+quantity
+price
+
+`MenuItems`
+menu_item_id (Primary Key)
+name
+description
+price
+stock
+
+`Receipts`
+receipt_id (Primary Key)
+order_id (Foreign Key ke Orders)
+receipt_date
+amount
+
+`IncomeReports`
+report_id (Primary Key)
+report_type (mingguan/bulanan)
+report_date
+total_income
+
+`StockReports`
+report_id (Primary Key)
+report_date
+menu_item_id (Foreign Key ke MenuItems)
+initial_stock
+final_stock
+
+Relasi Antar Tabel
+Customers berhubungan dengan Orders: Satu pelanggan bisa memiliki banyak pesanan.
+Orders berhubungan dengan OrderDetails: Satu pesanan bisa memiliki banyak detail pesanan.
+MenuItems berhubungan dengan OrderDetails: Satu item menu bisa muncul di banyak detail pesanan.
+Orders berhubungan dengan Receipts: Satu pesanan memiliki satu struk pembelian.
+IncomeReports dan StockReports terpisah sebagai laporan berkala.
